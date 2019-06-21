@@ -177,6 +177,9 @@ class PkgPyFuncs {
       requirements = _.concat(requirements, this.globalRequirements)
     }
     _.forEach(requirements, (req) => { this.installRequirements(buildPath,req)})
+    let cmd = 'cp'
+    let args = ['-fr', './psycopg2 ./_build/']
+    this.runProcess(cmd, args)
     zipper.sync.zip(buildPath).compress().save(`${buildPath}.zip`)
   }
 
