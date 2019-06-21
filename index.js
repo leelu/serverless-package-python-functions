@@ -96,6 +96,14 @@ class PkgPyFuncs {
       requirementsPath = `${this.dockerServicePath}/${requirementsPath}`
     }
 
+    if(requirementsPath.indexOf("psycopg2") > -1)
+    {
+	console.log("psycopg2 from root app directory is getting copied to function build directory");
+        let cmd = 'cp'
+        let args = ['-fr', upath.normalize(buildPath) + '/../psycopg2', upath.normalize(buildPath)]
+        console.log("the psycopg2 destination dir => " + upath.normalize(buildPath) + '/../psycopg2')
+        return this.runProcess(cmd, args)
+    }
     args = [...args, upath.normalize(requirementsPath)]
     return this.runProcess(cmd, args)
   }
@@ -177,9 +185,10 @@ class PkgPyFuncs {
       requirements = _.concat(requirements, this.globalRequirements)
     }
     _.forEach(requirements, (req) => { this.installRequirements(buildPath,req)})
+    /*
     let cmd = 'cp'
     let args = ['-fr', './psycopg2 ./_build/']
-    this.runProcess(cmd, args)
+    this.runProcess(cmd, args)*/
     zipper.sync.zip(buildPath).compress().save(`${buildPath}.zip`)
   }
 
