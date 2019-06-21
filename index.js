@@ -90,20 +90,27 @@ class PkgPyFuncs {
 
     let cmd = 'pip'
     let args = ['install','--upgrade','-t', upath.normalize(buildPath), '-r']
+    
+    let reqFileContent = Fse.readFileSync(requirementsPath, 'utf8');
+    if(reqFileContent.indexOf("psycopg2") > -1)
+    {
+        reqFileContent = reqFileContent.replace("psycopg2\n", "");
+        Fse.writeFileSync(requirementsPath, reqFileContent);
+        console.log("psycopg2 from root app directory is getting copied to function build directory");
+        let cmd1 = 'cp'
+        let args1 = ['-fr', upath.normalize(buildPath) + '/../../psycopg2', upath.normalize(buildPath)]
+        console.log("the psycopg2 destination dir => " + upath.normalize(buildPath))
+        this.runProcess(cmd1,args1)
+    }
+
+    
+
     if ( this.useDocker === true ){
       cmd = 'docker'
       args = ['exec', this.containerName, 'pip', ...args]
       requirementsPath = `${this.dockerServicePath}/${requirementsPath}`
     }
 
-    if(requirementsPath.indexOf("psycopg2") > -1)
-    {
-	console.log("psycopg2 from root app directory is getting copied to function build directory");
-        let cmd = 'cp'
-        let args = ['-fr', upath.normalize(buildPath) + '/../psycopg2', upath.normalize(buildPath)]
-        console.log("the psycopg2 destination dir => " + upath.normalize(buildPath) + '/../psycopg2')
-        return this.runProcess(cmd, args)
-    }
     args = [...args, upath.normalize(requirementsPath)]
     return this.runProcess(cmd, args)
   }
@@ -122,7 +129,6 @@ class PkgPyFuncs {
     if (ret.stderr.length != 0){
       this.log(ret.stderr.toString())
     }
-
     const out = ret.stdout.toString()
     return out
   }
